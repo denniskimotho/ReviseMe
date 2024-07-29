@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         operatorButtons = arrayOf(buttonAdd, buttonSub, buttonDiv, buttonMul)
 
-        specicialButtons = arrayOf(buttonEquals)
+        specicialButtons = arrayOf(buttonEquals,buttonClear,buttonDel)
 
         for (button in numberButtons) {
             button.setOnClickListener {
@@ -76,9 +76,9 @@ class MainActivity : AppCompatActivity() {
     private fun specicialButtonClicked(btnSpecial: Button) {
 
         if (btnSpecial.text == "=") {
-        var operand2: Int  = strNumber.toString().toInt()
+            var operand2: Int = strNumber.toString().toInt()
             var result: Int
-            when(operator) {
+            when (operator) {
                 Operator.ADD -> result = operand1 + operand2
                 Operator.SUB -> result = operand1 - operand2
                 Operator.MUL -> result = operand1 * operand2
@@ -87,8 +87,37 @@ class MainActivity : AppCompatActivity() {
             }
             strNumber.clear()
             strNumber.append(result.toString())
-            tvDisplay.text = strNumber
+            updateDisplay()
             isOperatorClicked = true
+        } else if (btnSpecial.text == "CLR") {
+            strNumber.clear()
+            strNumber.append("0")
+            updateDisplay()
+            isOperatorClicked = true
+        }else if (btnSpecial.text == "Del"){
+
+            var newStr:String = strNumber.toString().substring(0,strNumber.length-1)
+
+            strNumber.clear()
+            strNumber.append(newStr)
+
+            updateDisplay()
+        }
+
+    }
+
+    private fun updateDisplay() {
+
+
+        try {
+            var newValue: Int = strNumber.toString().toInt()
+            strNumber.clear()
+            strNumber.append(newValue.toString())
+
+            tvDisplay.text = strNumber
+        }catch (e:IllegalArgumentException){
+            strNumber.clear()
+            tvDisplay.text = "ERROR"
         }
 
     }
@@ -109,7 +138,7 @@ class MainActivity : AppCompatActivity() {
             isOperatorClicked = false
         }
         strNumber.append(btn.text)
-        tvDisplay.text = strNumber
+        updateDisplay()
     }
 }
 
