@@ -10,15 +10,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvDisplay: TextView
     private var strNumber = StringBuilder()
     private lateinit var numberButtons: Array<Button>
+    private lateinit var operatorButtons: Array<Button>
+    private lateinit var specicialButtons: Array<Button>
+    private var operator: Operator = Operator.NONE
+    private var isOperatorClicked: Boolean = false
+    private var operand1: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val num1: Int = 5
-        var num2: Int
-        num2 = 10
-
-        val sum: Int = num1 + num2
+        val sum: Int = 0
         tvDisplay = findViewById(R.id.tvDisplay)
         tvDisplay.text = sum.toString()
         initializeComponents()
@@ -39,19 +40,77 @@ class MainActivity : AppCompatActivity() {
         val button0: Button = findViewById(R.id.button0)
         val buttonAdd: Button = findViewById(R.id.buttonAdd)
         val buttonSub: Button = findViewById(R.id.buttonSub)
+        val buttonMul: Button = findViewById(R.id.buttonMul)
+        val buttonDiv: Button = findViewById(R.id.buttonDiv)
+        val buttonEquals: Button = findViewById(R.id.buttonEquals)
+        val buttonDel: Button = findViewById(R.id.buttonDel)
+        val buttonClear: Button = findViewById(R.id.buttonClear)
 
-        numberButtons = arrayOf(button9,button8,button7,button6,
-            button5,button4,button3,button2,button1,button0)
+        numberButtons = arrayOf(
+            button9, button8, button7, button6,
+            button5, button4, button3, button2, button1, button0
+        )
 
-        for(button in numberButtons){
+        operatorButtons = arrayOf(buttonAdd, buttonSub, buttonDiv, buttonMul)
+
+        specicialButtons = arrayOf(buttonEquals)
+
+        for (button in numberButtons) {
             button.setOnClickListener {
                 buttonNumberClicked(button)
             }
         }
+
+        for (btnOperator in operatorButtons) {
+            btnOperator.setOnClickListener {
+                operatorButtonClicked(btnOperator)
+            }
+        }
+        for (btnSpecial in specicialButtons) {
+            btnSpecial.setOnClickListener {
+                specicialButtonClicked(btnSpecial)
+            }
+        }
     }
 
-    private fun buttonNumberClicked(btn:Button) {
+    private fun specicialButtonClicked(btnSpecial: Button) {
+
+        if (btnSpecial.text == "=") {
+        var operand2: Int  = strNumber.toString().toInt()
+            var result: Int
+            when(operator) {
+                Operator.ADD -> result = operand1 + operand2
+                Operator.SUB -> result = operand1 - operand2
+                Operator.MUL -> result = operand1 * operand2
+                Operator.DIV -> result = operand1 / operand2
+                else -> result = 0
+            }
+            strNumber.clear()
+            strNumber.append(result.toString())
+            tvDisplay.text = strNumber
+            isOperatorClicked = true
+        }
+
+    }
+
+    private fun operatorButtonClicked(btnOperator: Button) {
+        if (btnOperator.text == "+") operator = Operator.ADD
+        else if (btnOperator.text == "-") operator = Operator.SUB
+        else if (btnOperator.text == "*") operator = Operator.MUL
+        else if (btnOperator.text == "/") operator = Operator.DIV
+        else operator = Operator.NONE
+        isOperatorClicked = true
+    }
+
+    private fun buttonNumberClicked(btn: Button) {
+        if (isOperatorClicked) {
+            operand1 = strNumber.toString().toInt()
+            strNumber.clear()
+            isOperatorClicked = false
+        }
         strNumber.append(btn.text)
         tvDisplay.text = strNumber
     }
 }
+
+enum class Operator { ADD, SUB, MUL, DIV, NONE }
