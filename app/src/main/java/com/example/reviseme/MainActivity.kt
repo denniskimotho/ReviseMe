@@ -8,6 +8,7 @@ import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
     private lateinit var tvDisplay: TextView
+    private lateinit var tvGrading: TextView
     private var strNumber = StringBuilder()
     private lateinit var numberButtons: Array<Button>
     private lateinit var operatorButtons: Array<Button>
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val sum: Int = 0
         tvDisplay = findViewById(R.id.tvDisplay)
+        tvGrading = findViewById(R.id.tvGrading)
         tvDisplay.text = sum.toString()
         initializeComponents()
 
@@ -45,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         val buttonEquals: Button = findViewById(R.id.buttonEquals)
         val buttonDel: Button = findViewById(R.id.buttonDel)
         val buttonClear: Button = findViewById(R.id.buttonClear)
+        val buttonSys: Button = findViewById(R.id.buttonSys)
+        val buttonMode: Button = findViewById(R.id.buttonMode)
 
         numberButtons = arrayOf(
             button9, button8, button7, button6,
@@ -53,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         operatorButtons = arrayOf(buttonAdd, buttonSub, buttonDiv, buttonMul)
 
-        specicialButtons = arrayOf(buttonEquals,buttonClear,buttonDel)
+        specicialButtons = arrayOf(buttonEquals, buttonClear, buttonDel,buttonSys,buttonMode)
 
         for (button in numberButtons) {
             button.setOnClickListener {
@@ -76,34 +80,58 @@ class MainActivity : AppCompatActivity() {
     private fun specicialButtonClicked(btnSpecial: Button) {
 
         if (btnSpecial.text == "=") {
-            var operand2: Int = strNumber.toString().toInt()
-            var result: Int
-            when (operator) {
-                Operator.ADD -> result = operand1 + operand2
-                Operator.SUB -> result = operand1 - operand2
-                Operator.MUL -> result = operand1 * operand2
-                Operator.DIV -> result = operand1 / operand2
-                else -> result = 0
-            }
-            strNumber.clear()
-            strNumber.append(result.toString())
-            updateDisplay()
-            isOperatorClicked = true
+            getTotal()
         } else if (btnSpecial.text == "CLR") {
+            operator = Operator.NONE
+            operand1 = 0
             strNumber.clear()
             strNumber.append("0")
             updateDisplay()
             isOperatorClicked = true
-        }else if (btnSpecial.text == "Del"){
+        } else if (btnSpecial.text == "Del") {
 
-            var newStr:String = strNumber.toString().substring(0,strNumber.length-1)
+            var newStr: String = strNumber.toString().substring(0, strNumber.length - 1)
 
             strNumber.clear()
             strNumber.append(newStr)
-
             updateDisplay()
+
+        }else if (btnSpecial.text == "ART"){
+            tvGrading.text = "System: Art"
+            btnSpecial.text = "SCI"
+        }else if (btnSpecial.text == "SCI"){
+            tvGrading.text = "System: Sci"
+            btnSpecial.text = "ART"
+        }else if (btnSpecial.text == "MODE"){
+            if(tvGrading.text !="normal"){
+                tvGrading.text = "normal"
+            }else {
+                tvGrading.text = "System: Sci"
+
+            }
+            specicialButtons[3].text = "ART"
         }
 
+    }
+
+    private fun getTotal() {
+        var operand2: Int = strNumber.toString().toInt()
+        var result: Int
+        when (operator) {
+            Operator.ADD -> result = operand1 + operand2
+            Operator.SUB -> result = operand1 - operand2
+            Operator.MUL -> result = operand1 * operand2
+            Operator.DIV ->  result = operand1 / operand2
+
+            else  -> result = operand2
+
+        }
+        operator = Operator.NONE
+        operand1 = result
+        strNumber.clear()
+        strNumber.append(result.toString())
+        updateDisplay()
+        isOperatorClicked = true
     }
 
     private fun updateDisplay() {
@@ -115,7 +143,7 @@ class MainActivity : AppCompatActivity() {
             strNumber.append(newValue.toString())
 
             tvDisplay.text = strNumber
-        }catch (e:IllegalArgumentException){
+        } catch (e: IllegalArgumentException) {
             strNumber.clear()
             tvDisplay.text = "ERROR"
         }
@@ -123,12 +151,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun operatorButtonClicked(btnOperator: Button) {
-        if (btnOperator.text == "+") operator = Operator.ADD
-        else if (btnOperator.text == "-") operator = Operator.SUB
-        else if (btnOperator.text == "*") operator = Operator.MUL
-        else if (btnOperator.text == "/") operator = Operator.DIV
-        else operator = Operator.NONE
+        if(operator!=Operator.NONE){
+            getTotal()
+        }
+        if (btnOperator.text == "+") {
+           operator = Operator.ADD
+        } else if (btnOperator.text == "-") {
+           operator = Operator.SUB
+        } else if (btnOperator.text == "*") {
+            operator = Operator.MUL
+        } else if (btnOperator.text == "/") {
+            operator = Operator.DIV
+        } else operator = Operator.NONE
         isOperatorClicked = true
+//        getTotal()
     }
 
     private fun buttonNumberClicked(btn: Button) {
